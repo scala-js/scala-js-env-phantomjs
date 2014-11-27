@@ -7,16 +7,15 @@
 \*                                                                      */
 
 
-package scala.scalajs.sbtplugin.env.phantomjs
+package org.scalajs.jsenv.phantomjs
 
-import scala.scalajs.sbtplugin.env._
+import org.scalajs.jsenv._
 
-import scala.scalajs.ir.Utils.escapeJS
+import org.scalajs.core.ir.Utils.escapeJS
 
-import scala.scalajs.tools.io._
-import scala.scalajs.tools.classpath._
-import scala.scalajs.tools.env._
-import scala.scalajs.tools.logging._
+import org.scalajs.core.tools.io._
+import org.scalajs.core.tools.classpath._
+import org.scalajs.core.tools.logging._
 
 import java.io.{ Console => _, _ }
 import java.net._
@@ -74,7 +73,7 @@ class PhantomJSEnv(
         else getClass().getClassLoader()
 
       val clazz = loader.loadClass(
-          "scala.scalajs.sbtplugin.env.phantomjs.JettyWebsocketManager")
+          "org.scalajs.jsenv.phantomjs.JettyWebsocketManager")
 
       val ctors = clazz.getConstructors()
       assert(ctors.length == 1, "JettyWebsocketManager may only have one ctor")

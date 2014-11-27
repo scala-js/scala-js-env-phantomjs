@@ -1,6 +1,6 @@
-package scala.scalajs.sbtplugin.test.env
+package org.scalajs.jsenv.test
 
-import scala.scalajs.sbtplugin.env.phantomjs.PhantomJSEnv
+import org.scalajs.jsenv.phantomjs.PhantomJSEnv
 
 import org.junit.Test
 

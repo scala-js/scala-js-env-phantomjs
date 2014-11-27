@@ -1,4 +1,4 @@
-package scala.scalajs.sbtplugin.env.phantomjs
+package org.scalajs.jsenv.phantomjs
 
 private[phantomjs] trait WebsocketManager {
   def start(): Unit

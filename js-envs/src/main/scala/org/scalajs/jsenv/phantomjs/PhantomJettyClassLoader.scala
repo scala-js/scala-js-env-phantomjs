@@ -1,6 +1,6 @@
-package scala.scalajs.sbtplugin.env.phantomjs
+package org.scalajs.jsenv.phantomjs
 
-import scala.scalajs.tools.io.IO
+import org.scalajs.core.tools.io.IO
 
 /** A special [[ClassLoader]] to load the Jetty 8 dependency of [[PhantomJSEnv]]
  *  in a private space.
@@ -16,7 +16,7 @@ import scala.scalajs.tools.io.IO
  *  of the Java world. This allows to load another version of Jetty in the same
  *  JVM for the rest of the project.
  */
-private[sbtplugin] class PhantomJettyClassLoader(jettyLoader: ClassLoader,
+final class PhantomJettyClassLoader(jettyLoader: ClassLoader,
     parent: ClassLoader) extends ClassLoader(parent) {
 
   def this(loader: ClassLoader) =
@@ -26,11 +26,11 @@ private[sbtplugin] class PhantomJettyClassLoader(jettyLoader: ClassLoader,
    *  Basically everything defined in JettyWebsocketManager.
    */
   private val bridgeClasses = Set(
-    "scala.scalajs.sbtplugin.env.phantomjs.JettyWebsocketManager",
-    "scala.scalajs.sbtplugin.env.phantomjs.JettyWebsocketManager$WSLogger",
-    "scala.scalajs.sbtplugin.env.phantomjs.JettyWebsocketManager$ComWebSocketListener",
-    "scala.scalajs.sbtplugin.env.phantomjs.JettyWebsocketManager$$anon$1",
-    "scala.scalajs.sbtplugin.env.phantomjs.JettyWebsocketManager$$anon$2"
+    "org.scalajs.jsenv.phantomjs.JettyWebsocketManager",
+    "org.scalajs.jsenv.phantomjs.JettyWebsocketManager$WSLogger",
+    "org.scalajs.jsenv.phantomjs.JettyWebsocketManager$ComWebSocketListener",
+    "org.scalajs.jsenv.phantomjs.JettyWebsocketManager$$anon$1",
+    "org.scalajs.jsenv.phantomjs.JettyWebsocketManager$$anon$2"
   )
 
   override protected def loadClass(name: String, resolve: Boolean): Class[_] = {
