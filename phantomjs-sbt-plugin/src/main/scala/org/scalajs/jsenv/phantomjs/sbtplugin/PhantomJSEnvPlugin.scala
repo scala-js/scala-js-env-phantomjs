@@ -19,7 +19,7 @@ import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 import org.scalajs.jsenv._
 import org.scalajs.jsenv.phantomjs._
 
-/** An sbt plugin that simplifies the setup of [[PhantomJSEnv]]s.
+/** An sbt plugin that simplifies the setup of `PhantomJSEnv`s.
  *
  *  There is no need to use `enablePlugins(PhantomJSEnvPlugin)`, as this plugin
  *  is automatically triggered by Scala.js projects.
