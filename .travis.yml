@@ -15,7 +15,7 @@ install:
   # While there is no published version of Scala.js 1.x, we have to locally build a snapshot.
   - git clone https://github.com/scala-js/scala-js.git
   - cd scala-js
-  - git checkout f21e7f5ea652fe4a186f1ecd8c0070fbb80edc80
+  - git checkout 66733a294b180da6aa8e793d1f29c8328d3cfb7a
   - sbt ++$TRAVIS_SCALA_VERSION ir/publishLocal tools/publishLocal jsEnvs/publishLocal jsEnvsTestKit/publishLocal
   - |
       if [[ "${TEST_SBT_PLUGIN}" == "true" ]]; then
