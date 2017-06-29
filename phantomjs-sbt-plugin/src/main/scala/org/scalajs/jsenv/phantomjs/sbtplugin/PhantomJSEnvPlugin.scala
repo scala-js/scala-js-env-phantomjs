@@ -69,7 +69,13 @@ object PhantomJSEnvPlugin extends AutoPlugin {
         autoExit: Boolean = true
     ): Def.Initialize[Task[PhantomJSEnv]] = Def.task {
       val loader = scalaJSPhantomJSClassLoader.value
-      new PhantomJSEnv(executable, args, env, autoExit, loader)
+      new PhantomJSEnv(
+          org.scalajs.jsenv.phantomjs.PhantomJSEnv.Config()
+            .withExecutable(executable)
+            .withArgs(args.toList)
+            .withEnv(env)
+            .withAutoExit(autoExit)
+            .withJettyClassLoader(loader))
     }
   }
 
