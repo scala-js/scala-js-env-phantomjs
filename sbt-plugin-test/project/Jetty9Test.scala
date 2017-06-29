@@ -2,8 +2,8 @@ import sbt._
 import Keys._
 
 import org.scalajs.sbtplugin._
-import ScalaJSPlugin.autoImport._
-import Implicits._
+import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
+import org.scalajs.sbtplugin.Loggers._
 
 import org.scalajs.jsenv._
 import org.scalajs.core.tools.io._
@@ -23,7 +23,6 @@ object Jetty9Test {
   val runSetting = run <<= Def.inputTask {
     val env = (jsEnv in Compile).value.asInstanceOf[ComJSEnv]
     val files = (jsExecutionFiles in Compile).value
-    val jsConsole = scalaJSConsole.value
 
     val code = new MemVirtualJSFile("runner.js").withContent(
       """
@@ -45,7 +44,7 @@ object Jetty9Test {
 
     val runner = env.comRunner(files :+ code)
 
-    runner.start(streams.value.log, jsConsole)
+    runner.start(sbtLogger2ToolsLogger(streams.value.log), ConsoleJSConsole)
 
     val jetty = setupJetty((resourceDirectory in Compile).value)
 

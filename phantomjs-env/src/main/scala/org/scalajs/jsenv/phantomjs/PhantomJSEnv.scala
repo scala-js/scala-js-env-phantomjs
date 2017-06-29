@@ -8,6 +8,8 @@
 
 package org.scalajs.jsenv.phantomjs
 
+import scala.collection.immutable
+
 import org.scalajs.jsenv._
 import org.scalajs.jsenv.Utils.OptDeadline
 
@@ -27,7 +29,7 @@ import scala.concurrent.{ExecutionContext, TimeoutException, Future}
 import scala.concurrent.duration.Duration
 
 class PhantomJSEnv(config: PhantomJSEnv.Config)
-    extends ExternalJSEnv(config.args, config.env) with ComJSEnv {
+    extends ExternalJSEnv with ComJSEnv {
 
   import PhantomJSEnv._
 
@@ -56,6 +58,10 @@ class PhantomJSEnv(config: PhantomJSEnv.Config)
   protected def vmName: String = "PhantomJS"
 
   protected val executable: String = config.executable
+
+  override protected def args: immutable.Seq[String] = config.args
+
+  override protected def env: Map[String, String] = config.env
 
   val autoExit: Boolean = config.autoExit
 
@@ -333,9 +339,10 @@ class PhantomJSEnv(config: PhantomJSEnv.Config)
 
     protected[this] val codeCache = new VirtualFileMaterializer
 
-    override protected def getVMArgs() =
+    override protected def getVMArgs(): Seq[String] = {
       // Add launcher file to arguments
-      additionalArgs :+ createTmpLauncherFile().getAbsolutePath
+      args :+ createTmpLauncherFile().getAbsolutePath
+    }
 
     /** In phantom.js, we include JS using HTML */
     override protected def writeJSFile(file: VirtualJSFile, writer: Writer) = {
