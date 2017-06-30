@@ -1,4 +1,4 @@
-val scalaJSVersion = "1.0.0-SNAPSHOT"
+val scalaJSVersion = "1.0.0-M1"
 
 inThisBuild(Seq(
   version := "0.1.0-SNAPSHOT",
@@ -78,7 +78,8 @@ lazy val `scalajs-phantomjs-env`: Project = project.in(file("phantomjs-env")).
       "org.eclipse.jetty" % "jetty-server" % "8.1.16.v20140903" % "provided",
 
       "com.novocode" % "junit-interface" % "0.11" % "test",
-      "org.scala-js" %% "scalajs-js-envs-test-kit" % scalaJSVersion % "test"
+      "org.scala-js" %% "scalajs-js-envs-test-kit" % scalaJSVersion % "test",
+      "org.scala-js" %% "scalajs-env-nodejs" % scalaJSVersion % "test"
     )
   )
 
