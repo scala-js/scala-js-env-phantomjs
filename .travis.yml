@@ -13,10 +13,10 @@ install:
   - mkdir -p $HOME/.sbt/0.13/plugins/
   - echo 'addSbtPlugin("io.get-coursier" % "sbt-coursier" % "1.0.0-RC3")' > $HOME/.sbt/0.13/plugins/coursier.sbt
 script:
-  - sbt ++$TRAVIS_SCALA_VERSION scalajs-phantomjs-env/test scalajs-phantomjs-env/doc
+  - sbt ++$TRAVIS_SCALA_VERSION scalajs-env-phantomjs/test scalajs-env-phantomjs/doc
   - |
       if [[ "${TEST_SBT_PLUGIN}" == "true" ]]; then
-        sbt scalajs-phantomjs-env/publishLocal sbt-scalajs-env-phantomjs/publishLocal && \
+        sbt scalajs-env-phantomjs/publishLocal sbt-scalajs-env-phantomjs/publishLocal && \
         cd sbt-plugin-test && \
         sbt jetty9/run && \
         cd ..

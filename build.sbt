@@ -63,12 +63,12 @@ lazy val root: Project = project.in(file(".")).
     publishLocal := {},
 
     clean := clean.dependsOn(
-      clean in `scalajs-phantomjs-env`,
+      clean in `scalajs-env-phantomjs`,
       clean in `sbt-scalajs-env-phantomjs`
     ).value
   )
 
-lazy val `scalajs-phantomjs-env`: Project = project.in(file("phantomjs-env")).
+lazy val `scalajs-env-phantomjs`: Project = project.in(file("phantomjs-env")).
   settings(
     commonSettings,
 
@@ -105,4 +105,4 @@ lazy val `sbt-scalajs-env-phantomjs`: Project = project.in(file("phantomjs-sbt-p
       sbtJars.map(_.data -> docUrl).toMap
     }
   ).
-  dependsOn(`scalajs-phantomjs-env`)
+  dependsOn(`scalajs-env-phantomjs`)
