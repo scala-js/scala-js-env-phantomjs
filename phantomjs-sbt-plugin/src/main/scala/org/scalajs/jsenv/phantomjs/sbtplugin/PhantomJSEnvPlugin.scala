@@ -25,7 +25,7 @@ import org.scalajs.jsenv.phantomjs._
  *  is automatically triggered by Scala.js projects.
  *
  *  Usually, one only needs to use the
- *  [[PhantomJSEnvPlugin.autoImport.PhantomJSEnv]] method.
+ *  [[PhantomJSEnvPlugin.autoImport PhantomJSEnv]] method.
  */
 object PhantomJSEnvPlugin extends AutoPlugin {
   override def requires: Plugins = ScalaJSPlugin
@@ -46,14 +46,17 @@ object PhantomJSEnvPlugin extends AutoPlugin {
           KeyRanks.Invisible)
     }
 
-    /** An [[sbt.Def.Initialize Def.Initialize]] for a [[PhantomJSEnv]].
+    /** An [[sbt.Def.Initialize Def.Initialize]] for a `PhantomJSEnv`.
      *
      *  Use this to specify in your build that you would like to run and/or
      *  test a project with PhantomJS:
      *
      *  {{{
-     *  jsEnv := PhantomJSEnv().value
+     *  jsEnv := PhantomJSEnv(...).value
      *  }}}
+     *
+     *  The specified `Config` is augmented with an appropriate Jetty class
+     *  loader (through `withJettyClassLoader`).
      *
      *  Note that the resulting [[sbt.Def.Setting Setting]] is not scoped at
      *  all, but must be scoped in a project that has the ScalaJSPlugin enabled
@@ -63,20 +66,22 @@ object PhantomJSEnvPlugin extends AutoPlugin {
      *  [[sbt.ProjectExtra.inScope[* Project.inScope]].
      */
     def PhantomJSEnv(
-        executable: String = "phantomjs",
-        args: Seq[String] = Seq.empty,
-        env: Map[String, String] = Map.empty,
-        autoExit: Boolean = true
+        config: org.scalajs.jsenv.phantomjs.PhantomJSEnv.Config
     ): Def.Initialize[Task[PhantomJSEnv]] = Def.task {
       val loader = scalaJSPhantomJSClassLoader.value
-      new PhantomJSEnv(
-          org.scalajs.jsenv.phantomjs.PhantomJSEnv.Config()
-            .withExecutable(executable)
-            .withArgs(args.toList)
-            .withEnv(env)
-            .withAutoExit(autoExit)
-            .withJettyClassLoader(loader))
+      new PhantomJSEnv(config.withJettyClassLoader(loader))
     }
+
+    /** An [[sbt.Def.Initialize Def.Initialize]] for a `PhantomJSEnv` with the
+     *  default configuration.
+     *
+     *  This is equivalent to
+     *  {{{
+     *  PhantomJSEnv(org.scalajs.jsenv.phantomjs.PhantomJSEnv.Config())
+     *  }}}
+     */
+    def PhantomJSEnv(): Def.Initialize[Task[PhantomJSEnv]] =
+      PhantomJSEnv(org.scalajs.jsenv.phantomjs.PhantomJSEnv.Config())
   }
 
   import autoImport._
