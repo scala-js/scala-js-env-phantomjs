@@ -1,17 +1,17 @@
 sudo: false
 language: scala
 scala:
-  - 2.10.6
-  - 2.11.11
-  - 2.12.2
+  - 2.10.7
+  - 2.11.12
+  - 2.12.4
 jdk:
   - oraclejdk8
 install:
-  - if [[ "${TRAVIS_SCALA_VERSION}" == "2.10.6" ]]; then TEST_SBT_PLUGIN=true; else TEST_SBT_PLUGIN=false; fi
+  - if [[ "${TRAVIS_SCALA_VERSION}" == "2.10.7" ]]; then TEST_SBT_PLUGIN=true; else TEST_SBT_PLUGIN=false; fi
   # The default ivy resolution takes way too much time, and times out Travis builds.
   # We use coursier instead.
   - mkdir -p $HOME/.sbt/0.13/plugins/
-  - echo 'addSbtPlugin("io.get-coursier" % "sbt-coursier" % "1.0.0-RC3")' > $HOME/.sbt/0.13/plugins/coursier.sbt
+  - echo 'addSbtPlugin("io.get-coursier" % "sbt-coursier" % "1.0.0-RC13")' > $HOME/.sbt/0.13/plugins/coursier.sbt
 script:
   - sbt ++$TRAVIS_SCALA_VERSION scalajs-env-phantomjs/test scalajs-env-phantomjs/doc
   - |
