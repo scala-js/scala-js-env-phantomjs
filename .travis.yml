@@ -7,17 +7,20 @@ scala:
 jdk:
   - oraclejdk8
 install:
-  - if [[ "${TRAVIS_SCALA_VERSION}" == "2.10.7" ]]; then TEST_SBT_PLUGIN=true; else TEST_SBT_PLUGIN=false; fi
+  - if [[ "${TRAVIS_SCALA_VERSION}" == "2.10.7" ]]; then TEST_SBT_VERSION=0.13.16; elif [[ "${TRAVIS_SCALA_VERSION}" == "2.12.4" ]]; then TEST_SBT_VERSION=1.0.4; else TEST_SBT_VERSION=false; fi
   # The default ivy resolution takes way too much time, and times out Travis builds.
   # We use coursier instead.
   - mkdir -p $HOME/.sbt/0.13/plugins/
   - echo 'addSbtPlugin("io.get-coursier" % "sbt-coursier" % "1.0.0-RC13")' > $HOME/.sbt/0.13/plugins/coursier.sbt
+  - mkdir -p $HOME/.sbt/1.0/plugins/
+  - echo 'addSbtPlugin("io.get-coursier" % "sbt-coursier" % "1.0.0-RC13")' > $HOME/.sbt/1.0/plugins/coursier.sbt
 script:
   - sbt ++$TRAVIS_SCALA_VERSION scalajs-env-phantomjs/test scalajs-env-phantomjs/doc
   - |
-      if [[ "${TEST_SBT_PLUGIN}" == "true" ]]; then
-        sbt scalajs-env-phantomjs/publishLocal sbt-scalajs-env-phantomjs/publishLocal && \
+      if [[ "${TEST_SBT_VERSION}" != "false" ]]; then
+        sbt ++$TRAVIS_SCALA_VERSION ^^$TEST_SBT_VERSION scalajs-env-phantomjs/publishLocal sbt-scalajs-env-phantomjs/publishLocal && \
         cd sbt-plugin-test && \
+        echo "sbt.version=$TEST_SBT_VERSION" > ./project/build.properties && \
         sbt jetty9/run && \
         cd ..
       fi
@@ -30,3 +33,4 @@ before_cache:
   - find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete
   - find $HOME/.sbt -name "*.lock" -print -delete
   - rm $HOME/.sbt/0.13/plugins/coursier.sbt
+  - rm $HOME/.sbt/1.0/plugins/coursier.sbt
