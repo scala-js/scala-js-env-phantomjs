@@ -1,6 +1,6 @@
 inThisBuild(Seq(
   version := "0.1.0-SNAPSHOT",
-  scalaVersion := "2.11.11"
+  scalaVersion := "2.11.12"
 ))
 
 name := "sbt-plugin-test"
