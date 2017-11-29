@@ -13,6 +13,7 @@ install:
   - mkdir -p $HOME/.sbt/0.13/plugins/
   - echo 'addSbtPlugin("io.get-coursier" % "sbt-coursier" % "1.0.0-RC3")' > $HOME/.sbt/0.13/plugins/coursier.sbt
 script:
+  - phantomjs -v
   - sbt ++$TRAVIS_SCALA_VERSION scalajs-env-phantomjs/test scalajs-env-phantomjs/doc
   - |
       if [[ "${TEST_SBT_PLUGIN}" == "true" ]]; then
