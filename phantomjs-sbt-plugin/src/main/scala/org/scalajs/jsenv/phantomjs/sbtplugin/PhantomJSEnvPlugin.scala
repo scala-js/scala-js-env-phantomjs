@@ -46,7 +46,7 @@ object PhantomJSEnvPlugin extends AutoPlugin {
           KeyRanks.Invisible)
     }
 
-    /** An [[sbt.Def.Initialize Def.Initialize]] for a `PhantomJSEnv`.
+    /** A `Def.Initialize` for a `PhantomJSEnv`.
      *
      *  Use this to specify in your build that you would like to run and/or
      *  test a project with PhantomJS:
@@ -58,12 +58,10 @@ object PhantomJSEnvPlugin extends AutoPlugin {
      *  The specified `Config` is augmented with an appropriate Jetty class
      *  loader (through `withJettyClassLoader`).
      *
-     *  Note that the resulting [[sbt.Def.Setting Setting]] is not scoped at
-     *  all, but must be scoped in a project that has the ScalaJSPlugin enabled
-     *  to work properly.
-     *  Therefore, either put the upper line in your project settings (common
-     *  case) or scope it manually, using
-     *  [[sbt.ProjectExtra.inScope[* Project.inScope]].
+     *  Note that the resulting `Setting` is not scoped at all, but must be
+     *  scoped in a project that has the ScalaJSPlugin enabled to work
+     *  properly. Therefore, either put the upper line in your project settings
+     *  (common case) or scope it manually, using `sbt.ProjectExtra.inScope`.
      */
     def PhantomJSEnv(
         config: org.scalajs.jsenv.phantomjs.PhantomJSEnv.Config
@@ -72,7 +70,7 @@ object PhantomJSEnvPlugin extends AutoPlugin {
       new PhantomJSEnv(config.withJettyClassLoader(loader))
     }
 
-    /** An [[sbt.Def.Initialize Def.Initialize]] for a `PhantomJSEnv` with the
+    /** A `Def.Initialize` for a `PhantomJSEnv` with the
      *  default configuration.
      *
      *  This is equivalent to
@@ -91,12 +89,17 @@ object PhantomJSEnvPlugin extends AutoPlugin {
       "org.eclipse.jetty" % "jetty-server" % "8.1.16.v20140903"
   )
 
+  /* Since sbt 1, a `config()` must be assigned to a `val` starting with an
+   * uppercase letter, which will become the "id" of the configuration.
+   */
+  val PhantomJSJetty: Configuration = config("phantom-js-jetty").hide
+
   override def projectSettings: Seq[Setting[_]] = Seq(
     /* Depend on jetty artifacts in a dummy configuration to be able to inject
      * them into the PhantomJS runner if necessary.
      * See scalaJSPhantomJSClassLoader.
      */
-    ivyConfigurations += config("phantom-js-jetty").hide,
+    ivyConfigurations += PhantomJSJetty,
     libraryDependencies ++= phantomJSJettyModules.map(_ % "phantom-js-jetty"),
 
     scalaJSPhantomJSClassLoader := {

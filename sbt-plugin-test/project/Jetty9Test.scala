@@ -20,7 +20,7 @@ object Jetty9Test {
 
   private val jettyPort = 23548
 
-  val runSetting = run <<= Def.inputTask {
+  val runSetting = run := Def.inputTask {
     val env = (jsEnv in Compile).value.asInstanceOf[ComJSEnv]
     val files = (jsExecutionFiles in Compile).value
 
@@ -66,7 +66,7 @@ object Jetty9Test {
     jetty.start()
     runner.await(30.seconds)
     jetty.join()
-  }
+  }.evaluated
 
   private def setupJetty(dir: File): Server = {
     val server = new Server(jettyPort)
