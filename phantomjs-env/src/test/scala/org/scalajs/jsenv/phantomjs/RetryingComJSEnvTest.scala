@@ -1,7 +1,8 @@
 package org.scalajs.jsenv.phantomjs
 
-import org.scalajs.core.tools.io.VirtualJSFile
-import org.scalajs.core.tools.logging._
+import org.scalajs.io.VirtualJSFile
+
+import org.scalajs.logging._
 
 import org.scalajs.jsenv.nodejs.NodeJSEnv
 import org.scalajs.jsenv.{ComJSRunner, JSConsole, _}

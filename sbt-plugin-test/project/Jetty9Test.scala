@@ -5,8 +5,9 @@ import org.scalajs.sbtplugin._
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 import org.scalajs.sbtplugin.Loggers._
 
+import org.scalajs.io._
+
 import org.scalajs.jsenv._
-import org.scalajs.core.tools.io._
 
 import org.eclipse.jetty.server._
 import org.eclipse.jetty.server.handler._

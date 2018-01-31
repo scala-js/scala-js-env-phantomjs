@@ -11,9 +11,9 @@ install:
   # The default ivy resolution takes way too much time, and times out Travis builds.
   # We use coursier instead.
   - mkdir -p $HOME/.sbt/0.13/plugins/
-  - echo 'addSbtPlugin("io.get-coursier" % "sbt-coursier" % "1.0.0-RC13")' > $HOME/.sbt/0.13/plugins/coursier.sbt
+  - echo 'addSbtPlugin("io.get-coursier" % "sbt-coursier" % "1.0.0")' > $HOME/.sbt/0.13/plugins/coursier.sbt
   - mkdir -p $HOME/.sbt/1.0/plugins/
-  - echo 'addSbtPlugin("io.get-coursier" % "sbt-coursier" % "1.0.0-RC13")' > $HOME/.sbt/1.0/plugins/coursier.sbt
+  - echo 'addSbtPlugin("io.get-coursier" % "sbt-coursier" % "1.0.0")' > $HOME/.sbt/1.0/plugins/coursier.sbt
 script:
   - sbt ++$TRAVIS_SCALA_VERSION scalajs-env-phantomjs/test scalajs-env-phantomjs/doc
   - |
