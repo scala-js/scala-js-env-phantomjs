@@ -8,8 +8,9 @@
 
 package org.scalajs.jsenv.phantomjs
 
-import org.scalajs.core.tools.io._
-import org.scalajs.core.tools.logging.Logger
+import org.scalajs.io._
+
+import org.scalajs.logging.Logger
 
 import org.scalajs.jsenv._
 

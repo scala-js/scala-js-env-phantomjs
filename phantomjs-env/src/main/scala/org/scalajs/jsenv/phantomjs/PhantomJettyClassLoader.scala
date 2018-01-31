@@ -8,7 +8,7 @@
 
 package org.scalajs.jsenv.phantomjs
 
-import org.scalajs.core.tools.io.IO
+import org.scalajs.io.IO
 
 /** A special `java.lang.ClassLoader` to load the Jetty 8 dependency of
  *  [[PhantomJSEnv]] in a private space.

@@ -13,10 +13,11 @@ import scala.collection.immutable
 import org.scalajs.jsenv._
 import org.scalajs.jsenv.Utils.OptDeadline
 
-import org.scalajs.core.ir.Utils.{escapeJS, fixFileURI}
+import org.scalajs.io._
+import org.scalajs.io.URIUtils.fixFileURI
+import org.scalajs.io.JSUtils.escapeJS
 
-import org.scalajs.core.tools.io._
-import org.scalajs.core.tools.logging._
+import org.scalajs.logging._
 
 import java.io.{ Console => _, _ }
 import java.net._
