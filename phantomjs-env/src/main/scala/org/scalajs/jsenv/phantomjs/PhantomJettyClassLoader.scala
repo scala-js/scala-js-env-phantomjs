@@ -8,7 +8,9 @@
 
 package org.scalajs.jsenv.phantomjs
 
-import org.scalajs.io.IO
+import scala.annotation.tailrec
+
+import java.io._
 
 /** A special `java.lang.ClassLoader` to load the Jetty 8 dependency of
  *  [[PhantomJSEnv]] in a private space.
@@ -55,7 +57,7 @@ final class PhantomJettyClassLoader(jettyLoader: ClassLoader,
         if (wsManager == null) {
           throw new ClassNotFoundException(name)
         } else {
-          val buf = IO.readInputStreamToByteArray(wsManager)
+          val buf = readInputStreamToByteArray(wsManager)
           defineClass(name, buf, 0, buf.length)
         }
       }
@@ -67,5 +69,11 @@ final class PhantomJettyClassLoader(jettyLoader: ClassLoader,
           super.loadClass(name, resolve)
       }
     }
+  }
+
+  private def readInputStreamToByteArray(in: InputStream): Array[Byte] = {
+    val out = new ByteArrayOutputStream()
+    Utils.pipeInputStreamToOutputStream(in, out)
+    out.toByteArray()
   }
 }

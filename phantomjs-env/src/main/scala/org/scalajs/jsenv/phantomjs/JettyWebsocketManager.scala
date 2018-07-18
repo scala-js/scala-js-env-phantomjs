@@ -132,4 +132,12 @@ private[phantomjs] final class JettyWebsocketManager(
       webSocketConn.sendMessage(msg)
   }
 
+  def closeConnection(): Unit = {
+    val conn = synchronized {
+      webSocketConn
+    }
+    if (conn != null)
+      conn.close()
+  }
+
 }
