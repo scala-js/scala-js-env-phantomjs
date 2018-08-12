@@ -15,6 +15,7 @@ import org.eclipse.jetty.util.component._
 
 import java.io.File
 
+import scala.concurrent._
 import scala.concurrent.duration._
 
 object Jetty9Test {
@@ -22,50 +23,54 @@ object Jetty9Test {
   private val jettyPort = 23548
 
   val runSetting = run := Def.inputTask {
-    val env = (jsEnv in Compile).value.asInstanceOf[ComJSEnv]
+    val env = (jsEnv in Compile).value
     val files = (jsExecutionFiles in Compile).value
 
-    val code = new MemVirtualJSFile("runner.js").withContent(
+    val code = MemVirtualBinaryFile.fromStringUTF8("runner.js",
       """
       scalajsCom.init(function(msg) {
         var xhr = new XMLHttpRequest();
         xhr.open("GET", msg);
         xhr.onload = (function() {
           scalajsCom.send(xhr.responseText.trim());
-          scalajsCom.close();
         });
         xhr.onerror = (function() {
           scalajsCom.send("failed!");
-          scalajsCom.close();
         });
         xhr.send();
       });
       """
     )
 
-    val runner = env.comRunner(files :+ code)
+    val input = Input.ScriptsToLoad((files :+ code).toList)
+    val runConfig = RunConfig()
+      .withLogger(sbtLogger2ToolsLogger(streams.value.log))
 
-    runner.start(sbtLogger2ToolsLogger(streams.value.log), ConsoleJSConsole)
+    val msgReceived = Promise[String]()
+
+    val run = env.startWithCom(input, runConfig, { msg =>
+      msgReceived.success(msg)
+    })
 
     val jetty = setupJetty((resourceDirectory in Compile).value)
 
     jetty.addLifeCycleListener(new AbstractLifeCycle.AbstractLifeCycleListener {
       override def lifeCycleStarted(event: LifeCycle): Unit = {
         try {
-          runner.send(s"http://localhost:$jettyPort/test.txt")
-          val msg = runner.receive()
+          run.send(s"http://localhost:$jettyPort/test.txt")
+          val msg = Await.result(msgReceived.future, 20.seconds)
           val expected = "It works!"
           if (msg != expected)
             sys.error(s"""received "$msg" instead of "$expected"""")
         } finally {
-          runner.close()
+          run.close()
           jetty.stop()
         }
       }
     })
 
     jetty.start()
-    runner.await(30.seconds)
+    Await.result(run.future, 30.seconds)
     jetty.join()
   }.evaluated
 
