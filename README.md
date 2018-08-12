@@ -10,7 +10,7 @@ This repository contains `scalajs-env-phantomjs` for Scala.js 1.x. In Scala.js
 
 ```scala
 // project/plugins.sbt
-addSbtPlugin("org.scala-js" % "sbt-scalajs-env-phantomjs" % "1.0.0-M3")
+addSbtPlugin("org.scala-js" % "sbt-scalajs-env-phantomjs" % "1.0.0-M5")
 
 // build.sbt (inside .settings(...) for multi-project builds)
 jsEnv := PhantomJSEnv().value
