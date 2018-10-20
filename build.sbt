@@ -1,4 +1,4 @@
-val scalaJSVersion = "1.0.0-M5"
+val scalaJSVersion = "1.0.0-M6"
 
 inThisBuild(Seq(
   version := "1.0.0-SNAPSHOT",
@@ -81,7 +81,9 @@ lazy val `scalajs-env-phantomjs`: Project = project.in(file("phantomjs-env")).
       "com.novocode" % "junit-interface" % "0.11" % "test",
       "org.scala-js" %% "scalajs-js-envs-test-kit" % scalaJSVersion % "test",
       "org.scala-js" %% "scalajs-env-nodejs" % scalaJSVersion % "test"
-    )
+    ),
+
+    testOptions += Tests.Argument(TestFrameworks.JUnit, "-v", "-a", "-s")
   )
 
 lazy val `sbt-scalajs-env-phantomjs`: Project = project.in(file("phantomjs-sbt-plugin")).
