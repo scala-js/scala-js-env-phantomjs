@@ -163,15 +163,21 @@ private final class ComRun(jettyClassLoader: ClassLoader,
   }
 
   private def sendNow(msg: String): Unit = {
-    val fragParts = msg.length / MaxCharPayloadSize
-
-    for (i <- 0 until fragParts) {
-      val payload = msg.substring(
-          i * MaxCharPayloadSize, (i + 1) * MaxCharPayloadSize)
-      mgr.sendMessage("1" + payload)
+    val len = msg.length
+    var fragStart = 0
+    var fragEnd = fragStart + MaxCharPayloadSize
+    while (fragEnd < len) {
+      /* Do not cut in the middle of a surrogate pair. We assume that a low
+       * surrogate is always preceded by a high surrogate, since the input must
+       * be a valid UTF-16 string.
+       */
+      if (Character.isLowSurrogate(msg.charAt(fragEnd)))
+        fragEnd -= 1
+      mgr.sendMessage("1" + msg.substring(fragStart, fragEnd))
+      fragStart = fragEnd
+      fragEnd = fragStart + MaxCharPayloadSize
     }
-
-    mgr.sendMessage("0" + msg.substring(fragParts * MaxCharPayloadSize))
+    mgr.sendMessage("0" + msg.substring(fragStart))
   }
 
   private def receiveFrag(frag: String): Unit = synchronized {
@@ -232,8 +238,12 @@ private final class ComRun(jettyClassLoader: ClassLoader,
 }
 
 object ComRun {
+  /* There are maximum 3 bytes per Char because:
+   * - code points requiring 4 bytes in UTF-8 require 2 Chars in UTF-16
+   * - some code points encoded using a single Char require 3 bytes in UTF-8
+   */
   private final val MaxByteMessageSize = 32768 // 32 KB
-  private final val MaxCharMessageSize = MaxByteMessageSize / 2 // 2B per char
+  private final val MaxCharMessageSize = MaxByteMessageSize / 3 // max 3 bytes per Char
   private final val MaxCharPayloadSize = MaxCharMessageSize - 1 // frag flag
 
   private sealed abstract class State
@@ -327,15 +337,21 @@ object ComRun {
       |  };
       |
       |  function sendImpl(msg) {
-      |    var frags = (msg.length / MaxPayloadSize) | 0;
-      |
-      |    for (var i = 0; i < frags; ++i) {
-      |      var payload = msg.substring(
-      |          i * MaxPayloadSize, (i + 1) * MaxPayloadSize);
-      |      websocket.send("1" + payload);
+      |    var len = msg.length;
+      |    var fragStart = 0;
+      |    var fragEnd = fragStart + MaxPayloadSize;
+      |    while (fragEnd < len) {
+      |      /* Do not cut in the middle of a surrogate pair. We assume that a
+      |       * low surrogate is always preceded by a high surrogate, since the
+      |       * input must a valid UTF-16 string.
+      |       */
+      |      if ((msg.charCodeAt(fragEnd) & 0xfc00) === 0xdc00) // low surrogate
+      |        fragEnd--;
+      |      websocket.send("1" + msg.substring(fragStart, fragEnd));
+      |      fragStart = fragEnd;
+      |      fragEnd = fragStart + MaxPayloadSize;
       |    }
-      |
-      |    websocket.send("0" + msg.substring(frags * MaxPayloadSize));
+      |    websocket.send("0" + msg.substring(fragStart));
       |  }
       |
       |  window.scalajsCom = {
