@@ -30,14 +30,25 @@ final class PhantomJSEnv(config: PhantomJSEnv.Config) extends JSEnv {
 
   def start(input: Input, runConfig: RunConfig): JSRun = {
     PhantomJSEnv.validator.validate(runConfig)
-    internalStart(initFiles ::: inputFiles(input), runConfig)
+    val scripts = validateInput(input)
+    internalStart(initFiles ::: scripts, runConfig)
   }
 
   def startWithCom(input: Input, runConfig: RunConfig,
       onMessage: String => Unit): JSComRun = {
     PhantomJSEnv.validator.validate(runConfig)
+    val scripts = validateInput(input)
     ComRun.start(config.jettyClassLoader, runConfig, onMessage) { comSetup =>
-      internalStart(comSetup :: initFiles ::: inputFiles(input), runConfig)
+      internalStart(comSetup :: initFiles ::: scripts, runConfig)
+    }
+  }
+
+  private def validateInput(input: Input): List[VirtualBinaryFile] = {
+    input match {
+      case Input.ScriptsToLoad(scripts) =>
+        scripts
+      case _ =>
+        throw new UnsupportedInputException(input)
     }
   }
 
@@ -61,11 +72,6 @@ final class PhantomJSEnv(config: PhantomJSEnv.Config) extends JSEnv {
          */
         JSRun.failed(t)
     }
-  }
-
-  private def inputFiles(input: Input) = input match {
-    case Input.ScriptsToLoad(scripts) => scripts
-    case _                            => throw new UnsupportedInputException(input)
   }
 
   /**
@@ -115,18 +121,6 @@ final class PhantomJSEnv(config: PhantomJSEnv.Config) extends JSEnv {
           |
           |})();
           |""".stripMargin
-      ),
-      MemVirtualBinaryFile.fromStringUTF8("scalaJSEnvInfo.js",
-          """
-          |__ScalaJSEnv = {
-          |  exitFunction: function(status) {
-          |    window.callPhantom({
-          |      action: 'exit',
-          |      returnValue: status | 0
-          |    });
-          |  }
-          |};
-          """.stripMargin
       )
       // scalastyle:on line.size.limit
   )
