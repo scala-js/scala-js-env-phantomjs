@@ -24,7 +24,7 @@ object Jetty9Test {
 
   val runSetting = run := Def.inputTask {
     val env = (jsEnv in Compile).value
-    val files = (jsExecutionFiles in Compile).value
+    val Input.ScriptsToLoad(files) = (jsEnvInput in Compile).value
 
     val code = MemVirtualBinaryFile.fromStringUTF8("runner.js",
       """
