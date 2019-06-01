@@ -8,24 +8,16 @@
 
 package org.scalajs.jsenv.phantomjs
 
-import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, Promise, Future}
 import scala.util.Try
-import scala.util.control.NonFatal
 
-import java.io._
-import java.net._
-import java.nio.file.{Files, StandardCopyOption}
+import java.nio.file.Path
 
 import org.scalajs.jsenv._
 
-import org.scalajs.io._
-import org.scalajs.io.URIUtils.fixFileURI
-import org.scalajs.io.JSUtils.escapeJS
-
 private final class ComRun(jettyClassLoader: ClassLoader,
     runConfig: RunConfig, onMessage: String => Unit,
-    startRun: VirtualBinaryFile => JSRun)
+    startRun: Path => JSRun)
     extends JSComRun {
 
   import ComRun._
@@ -263,13 +255,15 @@ object ComRun {
    *  @param jettyClassLoader A ClassLoader to isolate jetty.
    *  @param config Configuration for the run.
    *  @param onMessage callback upon message reception.
-   *  @param startRun [[JSRun]] launcher. Gets passed a
-   *      [[org.scalajs.io.VirtualBinaryFile VirtualBinaryFile]] that
-   *      initializes `scalaJSCom` on `global`. Requires PhantomJS libraries.
+   *  @param startRun
+   *    [[JSRun]] launcher. Gets passed a
+   *    [[https://docs.oracle.com/javase/8/docs/api/java/nio/file/Path.html Path]]
+   *    that initializes `scalaJSCom` on `global`. Requires PhantomJS
+   *    libraries.
    */
   def start(jettyClassLoader: ClassLoader, config: RunConfig,
       onMessage: String => Unit)(
-      startRun: VirtualBinaryFile => JSRun): JSComRun = {
+      startRun: Path => JSRun): JSComRun = {
     new ComRun(jettyClassLoader, config, onMessage, startRun)
   }
 
@@ -277,16 +271,18 @@ object ComRun {
    *
    *  @param config Configuration for the run.
    *  @param onMessage callback upon message reception.
-   *  @param startRun [[JSRun]] launcher. Gets passed a
-   *      [[org.scalajs.io.VirtualBinaryFile VirtualBinaryFile]] that
-   *      initializes `scalaJSCom` on `global`. Requires PhantomJS libraries.
+   *  @param startRun
+   *    [[JSRun]] launcher. Gets passed a
+   *    [[https://docs.oracle.com/javase/8/docs/api/java/nio/file/Path.html Path]]
+   *    that initializes `scalaJSCom` on `global`. Requires PhantomJS
+   *    libraries.
    */
   def start(config: RunConfig, onMessage: String => Unit)(
-      startRun: VirtualBinaryFile => JSRun): JSComRun = {
+      startRun: Path => JSRun): JSComRun = {
     start(null, config, onMessage)(startRun)
   }
 
-  private def makeComSetupFile(serverPort: Int): VirtualBinaryFile = {
+  private def makeComSetupFile(serverPort: Int): Path = {
     assert(serverPort > 0,
         s"Manager running with a non-positive port number: $serverPort")
 
@@ -378,6 +374,6 @@ object ComRun {
       |  }
       |}).call(this);""".stripMargin
 
-    MemVirtualBinaryFile.fromStringUTF8("comSetup.js", code)
+    Utils.createMemFile("comSetup.js", code)
   }
 }

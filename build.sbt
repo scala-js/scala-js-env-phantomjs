@@ -1,4 +1,4 @@
-val scalaJSVersion = "1.0.0-M7"
+val scalaJSVersion = "1.0.0-M8"
 
 inThisBuild(Seq(
   version := "1.0.0-SNAPSHOT",
@@ -75,6 +75,7 @@ lazy val `scalajs-env-phantomjs`: Project = project.in(file("phantomjs-env")).
 
     libraryDependencies ++= Seq(
       "org.scala-js" %% "scalajs-js-envs" % scalaJSVersion,
+      "com.google.jimfs" % "jimfs" % "1.1",
       "org.eclipse.jetty" % "jetty-websocket" % "8.1.16.v20140903" % "provided",
       "org.eclipse.jetty" % "jetty-server" % "8.1.16.v20140903" % "provided",
 

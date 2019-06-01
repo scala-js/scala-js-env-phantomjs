@@ -13,13 +13,12 @@ import scala.util.control.NonFatal
 import java.io._
 import java.net._
 import java.nio.charset.StandardCharsets.UTF_8
-import java.nio.file.{Files, StandardCopyOption}
+import java.nio.file.{Files, Path, StandardCopyOption}
+
+import com.google.common.jimfs.Jimfs
 
 import org.scalajs.jsenv._
-
-import org.scalajs.io._
-import org.scalajs.io.URIUtils.fixFileURI
-import org.scalajs.io.JSUtils.escapeJS
+import org.scalajs.jsenv.JSUtils.escapeJS
 
 final class PhantomJSEnv(config: PhantomJSEnv.Config) extends JSEnv {
   import PhantomJSEnv._
@@ -43,7 +42,7 @@ final class PhantomJSEnv(config: PhantomJSEnv.Config) extends JSEnv {
     }
   }
 
-  private def validateInput(input: Input): List[VirtualBinaryFile] = {
+  private def validateInput(input: Input): List[Path] = {
     input match {
       case Input.ScriptsToLoad(scripts) =>
         scripts
@@ -52,7 +51,7 @@ final class PhantomJSEnv(config: PhantomJSEnv.Config) extends JSEnv {
     }
   }
 
-  private def internalStart(files: List[VirtualBinaryFile],
+  private def internalStart(files: List[Path],
       runConfig: RunConfig): JSRun = {
     try {
       val launcherFile = createTmpLauncherFile(files, runConfig)
@@ -72,9 +71,10 @@ final class PhantomJSEnv(config: PhantomJSEnv.Config) extends JSEnv {
    * PhantomJS doesn't support Function.prototype.bind. We polyfill it.
    * https://github.com/ariya/phantomjs/issues/10522
    */
-  private def initFiles: List[MemVirtualBinaryFile] = List(
+  private def initFiles: List[Path] = List(
       // scalastyle:off line.size.limit
-      MemVirtualBinaryFile.fromStringUTF8("bindPolyfill.js",
+      Utils.createMemFile(
+          "bindPolyfill.js",
           """
           |// Polyfill for Function.bind from Facebook react:
           |// https://github.com/facebook/react/blob/3dc10749080a460e48bee46d769763ec7191ac76/src/test/phantomjs-shims.js
@@ -119,7 +119,7 @@ final class PhantomJSEnv(config: PhantomJSEnv.Config) extends JSEnv {
       // scalastyle:on line.size.limit
   )
 
-  protected def createTmpLauncherFile(scripts: List[VirtualBinaryFile],
+  protected def createTmpLauncherFile(scripts: List[Path],
       runConfig: RunConfig): File = {
 
     val webF = createTmpWebpage(scripts, runConfig)
@@ -175,7 +175,7 @@ final class PhantomJSEnv(config: PhantomJSEnv.Config) extends JSEnv {
     launcherTmpF
   }
 
-  protected def createTmpWebpage(scripts: List[VirtualBinaryFile],
+  protected def createTmpWebpage(scripts: List[Path],
       runConfig: RunConfig): File = {
 
     val webTmpF = File.createTempFile("phantomjs-launcher-webpage", ".html")
@@ -197,35 +197,39 @@ final class PhantomJSEnv(config: PhantomJSEnv.Config) extends JSEnv {
   }
 
   protected def writeWebpageLauncher(out: Writer,
-      scripts: List[VirtualBinaryFile]): Unit = {
+      scripts: List[Path]): Unit = {
     out.write(s"""<html><head>
         <title>Phantom.js Launcher</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />""")
+
+    val hackedScriptsFS = Jimfs.newFileSystem()
 
     // Enhance scripts with an awesome hack to detect syntax errors
     val scriptsAndSyntaxErrorHacks = scripts.zipWithIndex.flatMap {
       case (script, index) =>
         val hackedScriptOutputStream = new ByteArrayOutputStream()
-        Utils.pipeInputStreamToOutputStream(script.inputStream,
+        Utils.pipeInputStreamToOutputStream(Files.newInputStream(script),
             hackedScriptOutputStream)
         val hackedScriptCode =
           s"\n;\nvar SCALAJS_PHANTOMJS_SYNTAXERROR_HACK_$index = true;\n"
         hackedScriptOutputStream.write(hackedScriptCode.getBytes(UTF_8))
-        val hackedScript = MemVirtualBinaryFile(script.path,
-            hackedScriptOutputStream.toByteArray())
+        val hackedScript = hackedScriptsFS.getPath(script.toString())
+        if (hackedScript.getParent() != null)
+          Files.createDirectories(hackedScript.getParent())
+        Files.write(hackedScript, hackedScriptOutputStream.toByteArray())
 
-        val checkScript = MemVirtualBinaryFile.fromStringUTF8(
+        val checkScript = Utils.createMemFile(
             s"checkSyntaxError$index.js",
             s"""
               |if (typeof SCALAJS_PHANTOMJS_SYNTAXERROR_HACK_$index === 'undefined')
-              |  throw new SyntaxError("Syntax error in ${escapeJS(script.path)}");
+              |  throw new SyntaxError("Syntax error in ${escapeJS(script.toString())}");
             """.stripMargin)
 
         List(hackedScript, checkScript)
     }
 
     for (script <- scriptsAndSyntaxErrorHacks) {
-      val scriptURI = tmpFile(script.path, script.inputStream)
+      val scriptURI = tmpFile(script.toString(), Files.newInputStream(script))
       val fname = htmlEscape(fixFileURI(scriptURI).toASCIIString)
       out.write(
           s"""<script type="text/javascript" src="$fname"></script>""" + "\n")
@@ -242,6 +246,12 @@ final class PhantomJSEnv(config: PhantomJSEnv.Config) extends JSEnv {
     case c   => c :: Nil
   }
 
+  /** Adds an empty authority to URIs with the "file" scheme without authority.
+   *  Some browsers don't fetch URIs without authority correctly.
+   */
+  private def fixFileURI(uri: URI): URI =
+    if (uri.getScheme() != "file" || uri.getAuthority() != null) uri
+    else new URI("file", "", uri.getPath(), uri.getQuery(), uri.getFragment())
 }
 
 object PhantomJSEnv {
