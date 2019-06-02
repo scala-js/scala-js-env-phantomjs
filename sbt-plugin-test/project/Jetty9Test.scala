@@ -5,8 +5,6 @@ import org.scalajs.sbtplugin._
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 import org.scalajs.sbtplugin.Loggers._
 
-import org.scalajs.io._
-
 import org.scalajs.jsenv._
 
 import org.eclipse.jetty.server._
@@ -14,6 +12,10 @@ import org.eclipse.jetty.server.handler._
 import org.eclipse.jetty.util.component._
 
 import java.io.File
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+
+import com.google.common.jimfs.Jimfs
 
 import scala.concurrent._
 import scala.concurrent.duration._
@@ -26,7 +28,7 @@ object Jetty9Test {
     val env = (jsEnv in Compile).value
     val Input.ScriptsToLoad(files) = (jsEnvInput in Compile).value
 
-    val code = MemVirtualBinaryFile.fromStringUTF8("runner.js",
+    val code = Files.write(Jimfs.newFileSystem().getPath("runner.js"),
       """
       scalajsCom.init(function(msg) {
         var xhr = new XMLHttpRequest();
@@ -39,7 +41,7 @@ object Jetty9Test {
         });
         xhr.send();
       });
-      """
+      """.getBytes(StandardCharsets.UTF_8)
     )
 
     val input = Input.ScriptsToLoad((files :+ code).toList)

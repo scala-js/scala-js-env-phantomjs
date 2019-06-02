@@ -1,12 +1,12 @@
-val scalaJSVersion = "1.0.0-M7"
+val scalaJSVersion = "1.0.0-M8"
 
 inThisBuild(Seq(
   version := "1.0.0-SNAPSHOT",
   organization := "org.scala-js",
 
-  crossScalaVersions := Seq("2.10.7", "2.11.12", "2.12.6"),
-  crossSbtVersions := Seq("1.0.4", "0.13.17"),
-  scalaVersion := "2.10.7",
+  crossScalaVersions := Seq("2.10.7", "2.11.12", "2.12.8"),
+  crossSbtVersions := Seq("1.2.8", "0.13.17"),
+  scalaVersion := "2.12.8",
   scalacOptions ++= Seq("-deprecation", "-feature", "-Xfatal-warnings"),
 
   homepage := Some(url("https://www.scala-js.org/")),
@@ -75,6 +75,7 @@ lazy val `scalajs-env-phantomjs`: Project = project.in(file("phantomjs-env")).
 
     libraryDependencies ++= Seq(
       "org.scala-js" %% "scalajs-js-envs" % scalaJSVersion,
+      "com.google.jimfs" % "jimfs" % "1.1",
       "org.eclipse.jetty" % "jetty-websocket" % "8.1.16.v20140903" % "provided",
       "org.eclipse.jetty" % "jetty-server" % "8.1.16.v20140903" % "provided",
 

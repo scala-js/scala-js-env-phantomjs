@@ -1,6 +1,8 @@
 inThisBuild(Seq(
   version := "0.1.0-SNAPSHOT",
-  scalaVersion := "2.11.12"
+  scalaVersion := "2.11.12",
+  // PhantomJS does not support ES 2015
+  scalaJSLinkerConfig ~= { _.withESFeatures(_.withUseECMAScript2015(false)) }
 ))
 
 name := "sbt-plugin-test"
