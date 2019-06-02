@@ -65,12 +65,6 @@ final class PhantomJSEnv(config: PhantomJSEnv.Config) extends JSEnv {
     } catch {
       case NonFatal(t) =>
         JSRun.failed(t)
-
-      case t: NotImplementedError =>
-        /* In Scala 2.10.x, NotImplementedError was considered fatal.
-         * We need this case for the conformance tests to pass on 2.10.
-         */
-        JSRun.failed(t)
     }
   }
 
