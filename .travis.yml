@@ -1,20 +1,17 @@
 sudo: false
 language: scala
 scala:
-  - 2.10.7
   - 2.11.12
-  - 2.12.8
+  - 2.12.10
+  - 2.13.1
 jdk:
   - openjdk8
-install:
-  - if [[ "${TRAVIS_SCALA_VERSION}" == "2.10.7" ]]; then TEST_SBT_VERSION=0.13.17; elif [[ "${TRAVIS_SCALA_VERSION}" == "2.12.8" ]]; then TEST_SBT_VERSION=1.2.8; else TEST_SBT_VERSION=false; fi
 script:
   - sbt ++$TRAVIS_SCALA_VERSION scalajs-env-phantomjs/test scalajs-env-phantomjs/doc
   - |
-      if [[ "${TEST_SBT_VERSION}" != "false" ]]; then
-        sbt ++$TRAVIS_SCALA_VERSION ^^$TEST_SBT_VERSION scalajs-env-phantomjs/publishLocal sbt-scalajs-env-phantomjs/publishLocal && \
+      if [[ "${TRAVIS_SCALA_VERSION}" == "2.12.10" ]]; then
+        sbt ++$TRAVIS_SCALA_VERSION scalajs-env-phantomjs/publishLocal sbt-scalajs-env-phantomjs/publishLocal && \
         cd sbt-plugin-test && \
-        echo "sbt.version=$TEST_SBT_VERSION" > ./project/build.properties && \
         sbt jetty9/run && \
         cd ..
       fi

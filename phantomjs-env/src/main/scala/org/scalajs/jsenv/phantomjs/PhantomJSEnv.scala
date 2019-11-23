@@ -27,13 +27,13 @@ final class PhantomJSEnv(config: PhantomJSEnv.Config) extends JSEnv {
 
   val name: String = "PhantomJS"
 
-  def start(input: Input, runConfig: RunConfig): JSRun = {
+  def start(input: Seq[Input], runConfig: RunConfig): JSRun = {
     PhantomJSEnv.validator.validate(runConfig)
     val scripts = validateInput(input)
     internalStart(initFiles ::: scripts, runConfig)
   }
 
-  def startWithCom(input: Input, runConfig: RunConfig,
+  def startWithCom(input: Seq[Input], runConfig: RunConfig,
       onMessage: String => Unit): JSComRun = {
     PhantomJSEnv.validator.validate(runConfig)
     val scripts = validateInput(input)
@@ -42,13 +42,14 @@ final class PhantomJSEnv(config: PhantomJSEnv.Config) extends JSEnv {
     }
   }
 
-  private def validateInput(input: Input): List[Path] = {
-    input match {
-      case Input.ScriptsToLoad(scripts) =>
-        scripts
+  private def validateInput(input: Seq[Input]): List[Path] = {
+    input.map {
+      case Input.Script(script) =>
+        script
+
       case _ =>
         throw new UnsupportedInputException(input)
-    }
+    }.toList
   }
 
   private def internalStart(files: List[Path],
@@ -243,7 +244,7 @@ final class PhantomJSEnv(config: PhantomJSEnv.Config) extends JSEnv {
     case '>' => "&gt;"
     case '"' => "&quot;"
     case '&' => "&amp;"
-    case c   => c :: Nil
+    case c   => c.toString
   }
 
   /** Adds an empty authority to URIs with the "file" scheme without authority.

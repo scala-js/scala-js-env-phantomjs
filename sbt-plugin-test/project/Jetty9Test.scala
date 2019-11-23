@@ -26,7 +26,6 @@ object Jetty9Test {
 
   val runSetting = run := Def.inputTask {
     val env = (jsEnv in Compile).value
-    val Input.ScriptsToLoad(files) = (jsEnvInput in Compile).value
 
     val code = Files.write(Jimfs.newFileSystem().getPath("runner.js"),
       """
@@ -44,7 +43,8 @@ object Jetty9Test {
       """.getBytes(StandardCharsets.UTF_8)
     )
 
-    val input = Input.ScriptsToLoad((files :+ code).toList)
+    val input = (jsEnvInput in Compile).value :+ Input.Script(code)
+
     val runConfig = RunConfig()
       .withLogger(sbtLogger2ToolsLogger(streams.value.log))
 
