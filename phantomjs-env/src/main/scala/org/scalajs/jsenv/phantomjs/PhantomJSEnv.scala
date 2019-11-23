@@ -243,7 +243,7 @@ final class PhantomJSEnv(config: PhantomJSEnv.Config) extends JSEnv {
     case '>' => "&gt;"
     case '"' => "&quot;"
     case '&' => "&amp;"
-    case c   => c :: Nil
+    case c   => c.toString
   }
 
   /** Adds an empty authority to URIs with the "file" scheme without authority.
