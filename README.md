@@ -19,3 +19,5 @@ scalaJSLinkerConfig ~= { _.withESFeatures(_.withUseECMAScript2015(false)) }
 
 The last line is needed because Scala.js emits ECMAScript 2015 code by default,
 but PhantomJS only supports ES 5.1.
+
+See [the Scaladoc](https://javadoc.io/doc/org.scala-js/scalajs-env-phantomjs_2.13/latest/org/scalajs/jsenv/phantomjs/index.html) for other configuration options.
