@@ -12,9 +12,12 @@ This repository contains `scalajs-env-phantomjs` for Scala.js 1.x. In Scala.js
 // project/plugins.sbt
 addSbtPlugin("org.scala-js" % "sbt-scalajs-env-phantomjs" % "1.0.0")
 
+// Add an explicit import if using project/*.scala
+import org.scalajs.jsenv.phantomjs.sbtplugin.PhantomJSEnvPlugin.autoImport._
+
 // build.sbt (inside .settings(...) for multi-project builds)
-jsEnv := PhantomJSEnv().value
-scalaJSLinkerConfig ~= { _.withESFeatures(_.withUseECMAScript2015(false)) }
+Test / jsEnv := PhantomJSEnv().value
+Test / scalaJSLinkerConfig ~= { _.withESFeatures(_.withUseECMAScript2015(false)) }
 ```
 
 The last line is needed because Scala.js emits ECMAScript 2015 code by default,
