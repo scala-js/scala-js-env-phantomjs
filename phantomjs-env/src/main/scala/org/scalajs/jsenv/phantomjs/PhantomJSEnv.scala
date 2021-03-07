@@ -133,6 +133,8 @@ final class PhantomJSEnv(config: PhantomJSEnv.Config) extends JSEnv {
     try {
       out.write(
           s"""// Scala.js Phantom.js launcher
+             |if (!console.error)
+             |  console.error = console.log;
              |var page = require('webpage').create();
              |var url = "${escapeJS(fixFileURI(webF.toURI).toASCIIString)}";
              |page.onConsoleMessage = function(msg) {
