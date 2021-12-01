@@ -11,7 +11,7 @@ inThisBuild(Seq(
 
   homepage := Some(url("https://www.scala-js.org/")),
   licenses += ("BSD New",
-      url("https://github.com/scala-js/scala-js-env-phantomjs/blob/master/LICENSE")),
+      url("https://github.com/scala-js/scala-js-env-phantomjs/blob/main/LICENSE")),
   scmInfo := Some(ScmInfo(
       url("https://github.com/scala-js/scala-js-env-phantomjs"),
       "scm:git:git@github.com:scala-js/scala-js-env-phantomjs.git",
